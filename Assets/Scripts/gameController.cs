@@ -95,8 +95,9 @@ public class gameController : MonoBehaviour {
         gameStarted = false;
         gameWon = false;
         gameLost = false;
-        gameTime = 0;
         isPaused = false;
+        gameTime = 0;
+        numFlags = 0;
         mines = new GameObject[numMines];
         gameCubes = new GameObject[width, height];
         notMineFlags = new ArrayList();
