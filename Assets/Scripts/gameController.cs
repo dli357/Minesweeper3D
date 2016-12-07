@@ -4,17 +4,17 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 
 public class gameController : MonoBehaviour {
-    public static int height;
-    public static int width;
-    public static int boardHeight;
-    public static int boardWidth;
-    public static int numMines;
-    public static int numFlags;
-    private static float gameTime;
-    private static bool gameStarted;
-    private static bool gameLost;
-    private static bool gameWon;
-    private static bool isPaused;
+    public int height;
+    public int width;
+    public int boardHeight;
+    public int boardWidth;
+    public int numMines;
+    public int numFlags;
+    private float gameTime;
+    private bool gameStarted;
+    private bool gameLost;
+    private bool gameWon;
+    private bool isPaused;
     public GameObject gameBoard;
     public GameObject gameCube;
     public GameObject backgroundQuad;
@@ -112,7 +112,7 @@ public class gameController : MonoBehaviour {
         boardWidth = width * 40 + 50;
     }
 
-    private void checkWinConditions() {
+    public void checkWinConditions() {
         bool won = true;
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -171,17 +171,18 @@ public class gameController : MonoBehaviour {
         mmc.offLoadingCanvas();
     }
 
-    void openGameCube(GameObject gameCube) {
+    IEnumerator openGameCube(GameObject gameCube) {
         string[] coords = gameCube.name.Split(':');
         int y = Convert.ToInt32(coords[0]);
         int x = Convert.ToInt32(coords[1]);
         if (!gameStarted) {
             gameStarted = true;
             spawnMines(x, y);
-            openGameCube(gameCube);
+            StartCoroutine(openGameCube(gameCube));
         } else if (!gameCube.GetComponent<gameCubeCatchController>().getIsOpen() 
             && !gameCube.GetComponent <gameCubeCatchController>().getIsFlagged()) {
             gameCube.GetComponent<gameCubeCatchController>().setOpen();
+            yield return null;
             if (gameCube.GetComponent<gameCubeCatchController>().getIsMine()) {
                 setGameLost();
             } else if (gameCube.GetComponent<gameCubeCatchController>().getNumber() == 0) {
@@ -189,7 +190,7 @@ public class gameController : MonoBehaviour {
                     int searchX = x + ((i % 3) - 1);
                     int searchY = y + ((i / 3) - 1);
                     if ((searchX != x || searchY != y) && searchX > 0 && searchY > 0 && searchX <= width && searchY <= height) {
-                        openGameCube(gameCubes[searchX - 1, searchY - 1]);
+                        StartCoroutine(openGameCube(gameCubes[searchX - 1, searchY - 1]));
                     }
                 }
             } else {
@@ -198,7 +199,6 @@ public class gameController : MonoBehaviour {
                 }
             }
         }
-        checkWinConditions();
     }
 
     public void resetGame() {

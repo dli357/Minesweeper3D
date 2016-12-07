@@ -125,6 +125,7 @@ public class gameCubeCatchController : MonoBehaviour {
             && !gameController.getGameLost() 
             && !gameController.getGameWon()) {
             gameController.SendMessage("openGameCube", gameObject);
+            gameController.checkWinConditions();
         }
     }
 
