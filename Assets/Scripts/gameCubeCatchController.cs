@@ -1,11 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class gameCubeCatchController : MonoBehaviour {
     private bool isMine = false;
     private bool isFlagged = false;
     private bool isOpen = false;
     private int number = 0;
+    private int numFlagsAround = 0;
+    private int x;
+    private int y;
     private gameController gameController;
     private Renderer matRenderer;
 
@@ -32,6 +36,9 @@ public class gameCubeCatchController : MonoBehaviour {
 
     public void setGameController(gameController controller) {
         gameController = controller;
+        string[] coords = gameObject.name.Split(':');
+        y = Convert.ToInt32(coords[0]);
+        x = Convert.ToInt32(coords[1]);
     }
 
     public void setIsMine(bool b) {
@@ -50,6 +57,10 @@ public class gameCubeCatchController : MonoBehaviour {
         return number;
     }
 
+    public int getFlagNumber() {
+        return numFlagsAround;
+    }
+
     public bool getIsFlagged() {
         return isFlagged;
     }
@@ -62,6 +73,14 @@ public class gameCubeCatchController : MonoBehaviour {
         number++;
     }
 
+    public void incrementFlagNum() {
+        numFlagsAround++;
+    }
+
+    public void decrementFlagNum() {
+        numFlagsAround--;
+    }
+
     private void toggleFlag() {
         if (gameController.getGameStarted()) {
             if (isFlagged) {
@@ -71,12 +90,32 @@ public class gameCubeCatchController : MonoBehaviour {
                 if (!isMine) {
                     gameController.removeFromWrongFlagsList(gameObject);
                 }
+                for (int i = 0; i < 9; i++) {
+                    int searchX = x + ((i % 3) - 1);
+                    int searchY = y + ((i / 3) - 1);
+                    if ((searchX != x || searchY != y)
+                        && searchX > 0 && searchY > 0
+                        && searchX <= gameController.getWidth()
+                        && searchY <= gameController.getHeight()) {
+                        gameController.getGameCubes()[searchX - 1, searchY - 1].GetComponent<gameCubeCatchController>().decrementFlagNum();
+                    }
+                }
             } else {
                 isFlagged = true;
                 gameController.incrementNumFlags();
                 matRenderer.material = flaggedMat;
                 if (!isMine) {
                     gameController.addToWrongFlagsList(gameObject);
+                }
+                for (int i = 0; i < 9; i++) {
+                    int searchX = x + ((i % 3) - 1);
+                    int searchY = y + ((i / 3) - 1);
+                    if ((searchX != x || searchY != y)
+                        && searchX > 0 && searchY > 0
+                        && searchX <= gameController.getWidth()
+                        && searchY <= gameController.getHeight()) {
+                        gameController.getGameCubes()[searchX - 1, searchY - 1].GetComponent<gameCubeCatchController>().incrementFlagNum();
+                    }
                 }
             }
         }
@@ -125,7 +164,22 @@ public class gameCubeCatchController : MonoBehaviour {
             && !gameController.getGameLost() 
             && !gameController.getGameWon()) {
             gameController.SendMessage("openGameCube", gameObject);
-            gameController.checkWinConditions();
+            StartCoroutine(gameController.checkWinConditions());
+        } else if (numFlagsAround == number
+            && isOpen
+            && number != 0) {
+            for (int i = 0; i < 9; i++) {
+                int searchX = x + ((i % 3) - 1);
+                int searchY = y + ((i / 3) - 1);
+                if ((searchX != x || searchY != y)
+                    && searchX > 0 && searchY > 0
+                    && searchX <= gameController.getWidth()
+                    && searchY <= gameController.getHeight()) {
+                    gameController.SendMessage("openGameCube",
+                        gameController.getGameCubes()[searchX - 1, searchY - 1]);
+                }
+            }
+            StartCoroutine(gameController.checkWinConditions());
         }
     }
 

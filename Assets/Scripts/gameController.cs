@@ -4,12 +4,13 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 
 public class gameController : MonoBehaviour {
-    public int height;
-    public int width;
-    public int boardHeight;
-    public int boardWidth;
-    public int numMines;
-    public int numFlags;
+    private int height;
+    private int width;
+    private int boardHeight;
+    private int boardWidth;
+    private int numMines;
+    private int numFlags;
+    private int cubesComputing;
     private float gameTime;
     private bool gameStarted;
     private bool gameLost;
@@ -61,6 +62,15 @@ public class gameController : MonoBehaviour {
     public bool getIsPaused() {
         return isPaused;
     }
+    public GameObject[,] getGameCubes() {
+        return gameCubes;
+    }
+    public int getWidth() {
+        return width;
+    }
+    public int getHeight() {
+        return height;
+    }
     public void decrementNumFlags() {
         numFlags--;
         minesLeftDisplay.GetComponent<fourDigitHexDisplay>().setValue(numMines - numFlags);
@@ -98,6 +108,7 @@ public class gameController : MonoBehaviour {
         isPaused = false;
         gameTime = 0;
         numFlags = 0;
+        cubesComputing = 0;
         mines = new GameObject[numMines];
         gameCubes = new GameObject[width, height];
         notMineFlags = new ArrayList();
@@ -112,7 +123,11 @@ public class gameController : MonoBehaviour {
         boardWidth = width * 40 + 50;
     }
 
-    public void checkWinConditions() {
+    public IEnumerator checkWinConditions() {
+        while (cubesComputing != 0) {
+            yield return null;
+        }
+        //Only run after all game cubes are opened by the recursive function
         bool won = true;
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -171,21 +186,27 @@ public class gameController : MonoBehaviour {
         mmc.offLoadingCanvas();
     }
 
-    IEnumerator openGameCube(GameObject gameCube) {
+    public IEnumerator openGameCube(GameObject gameCube) {
+        cubesComputing++;
+        yield return null;
+        gameCubeCatchController cubeController = gameCube.GetComponent<gameCubeCatchController>();
         string[] coords = gameCube.name.Split(':');
         int y = Convert.ToInt32(coords[0]);
         int x = Convert.ToInt32(coords[1]);
         if (!gameStarted) {
+            //If game has not started, spawn mines and create safe zone
             gameStarted = true;
             spawnMines(x, y);
             StartCoroutine(openGameCube(gameCube));
-        } else if (!gameCube.GetComponent<gameCubeCatchController>().getIsOpen() 
-            && !gameCube.GetComponent <gameCubeCatchController>().getIsFlagged()) {
-            gameCube.GetComponent<gameCubeCatchController>().setOpen();
-            yield return null;
-            if (gameCube.GetComponent<gameCubeCatchController>().getIsMine()) {
+        } else if (!cubeController.getIsOpen()
+            && !cubeController.getIsFlagged()) {
+            //Make sure box is both unopened and unflagged
+            cubeController.setOpen();
+            if (cubeController.getIsMine()) {
+                //Lose game if you open a mine
                 setGameLost();
-            } else if (gameCube.GetComponent<gameCubeCatchController>().getNumber() == 0) {
+            } else if (cubeController.getNumber() == 0) {
+                //If zero, recursively open until you hit a number
                 for (int i = 0; i < 9; i++) {
                     int searchX = x + ((i % 3) - 1);
                     int searchY = y + ((i / 3) - 1);
@@ -194,11 +215,13 @@ public class gameController : MonoBehaviour {
                     }
                 }
             } else {
-                if (!gameCube.GetComponent<gameCubeCatchController>().getIsMine()) {
+                //If a number, just open it
+                if (!cubeController.getIsMine()) {
                     gameCube.transform.GetChild(0).gameObject.SetActive(true);
                 }
             }
         }
+        cubesComputing--;
     }
 
     public void resetGame() {
