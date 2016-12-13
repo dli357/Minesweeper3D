@@ -16,6 +16,7 @@ public class gameController : MonoBehaviour {
     private bool gameLost;
     private bool gameWon;
     private bool isPaused;
+    private bool isRestarting;
     public GameObject gameBoard;
     public GameObject gameCube;
     public GameObject backgroundQuad;
@@ -24,6 +25,7 @@ public class gameController : MonoBehaviour {
     public GameObject faceCube;
     public GameObject digitDisplay;
     public GameObject pauseMenu;
+    public GameObject coverCube;
     private mainMenuScript mmc;
     private fourDigitHexDisplay timerDisplay;
     private fourDigitHexDisplay minesLeftDisplay;
@@ -32,6 +34,27 @@ public class gameController : MonoBehaviour {
     private GameObject[] mines;
     private GameObject[,] gameCubes;
     private ArrayList notMineFlags;
+
+    //Do not use Start or Awake
+    //This method launches after any necessary params are set
+    //Use this for initialization
+    void altStart() {
+        isRestarting = true;
+        gameStarted = false;
+        gameWon = false;
+        gameLost = false;
+        isPaused = false;
+        gameTime = 0;
+        numFlags = 0;
+        cubesComputing = 0;
+        mines = new GameObject[numMines];
+        gameCubes = new GameObject[width, height];
+        notMineFlags = new ArrayList();
+        calculateBoardParams();
+        mmc = GameObject.Find("MainMenuController").GetComponent<mainMenuScript>();
+        generateBackgroundQuad();
+        StartCoroutine(generateGameCubes());
+    }
 
     // Update is called once per frame
     void Update() {
@@ -71,6 +94,12 @@ public class gameController : MonoBehaviour {
     public int getHeight() {
         return height;
     }
+    public int getCubesComputing() {
+        return cubesComputing;
+    }
+    public bool getIsRestarting() {
+        return isRestarting;
+    }
     public void decrementNumFlags() {
         numFlags--;
         minesLeftDisplay.GetComponent<fourDigitHexDisplay>().setValue(numMines - numFlags);
@@ -95,27 +124,6 @@ public class gameController : MonoBehaviour {
     }
     public void removeFromWrongFlagsList(GameObject g) {
         notMineFlags.Remove(g);
-    }
-
-
-    //Do not use Start or Awake
-    //This method launches after any necessary params are set
-    //Use this for initialization
-    void altStart() {
-        gameStarted = false;
-        gameWon = false;
-        gameLost = false;
-        isPaused = false;
-        gameTime = 0;
-        numFlags = 0;
-        cubesComputing = 0;
-        mines = new GameObject[numMines];
-        gameCubes = new GameObject[width, height];
-        notMineFlags = new ArrayList();
-        calculateBoardParams();
-        mmc = GameObject.Find("MainMenuController").GetComponent<mainMenuScript>();
-        StartCoroutine(generateBackgroundQuad());
-        StartCoroutine(generateGameCubes());
     }
 
     private void calculateBoardParams() {
@@ -143,7 +151,7 @@ public class gameController : MonoBehaviour {
         }
     }
 
-    private IEnumerator generateBackgroundQuad() {
+    private void generateBackgroundQuad() {
         gameBoardClone = (GameObject) Instantiate(gameBoard, new Vector3(0, 0, 275), new Quaternion(0, 0, 0, 0));
         GameObject backgroundQuadClone = (GameObject) Instantiate(backgroundQuad, gameBoardClone.transform, false);
         backgroundQuadClone.transform.position = new Vector3(0, 0, 275);
@@ -165,7 +173,9 @@ public class gameController : MonoBehaviour {
         minesLeftDisplay.transform.localScale = new Vector3(4, 4, 4);
         minesLeftDisplay.name = "MinesLeftDigitDisplay";
         minesLeftDisplay.GetComponent<fourDigitHexDisplay>().setValue(numMines);
-        yield return null;
+        GameObject coverCubeClone = (GameObject) Instantiate(coverCube, gameBoardClone.transform, false);
+        coverCubeClone.transform.position = new Vector3(0, 0, 282.6f);
+        coverCubeClone.transform.localScale = new Vector3(boardWidth, boardHeight, 15);
     }
 
     private IEnumerator generateGameCubes() {
@@ -184,6 +194,7 @@ public class gameController : MonoBehaviour {
             yield return null;
         }
         mmc.offLoadingCanvas();
+        isRestarting = false;
     }
 
     public IEnumerator openGameCube(GameObject gameCube) {
@@ -225,8 +236,11 @@ public class gameController : MonoBehaviour {
     }
 
     public void resetGame() {
-        Destroy(gameBoardClone);
-        altStart();
+        if (!isRestarting) {
+            isRestarting = true;
+            Destroy(gameBoardClone);
+            altStart();
+        }
     }
 
     public void returnToMenu() {
@@ -260,6 +274,8 @@ public class gameController : MonoBehaviour {
                         break;
                     }
                 }
+                //Debug.Log((x - 1) + ":" + (y - 1));
+                //Debug.Log(gameCubes[x - 1, y - 1]);
                 if (!gameCubes[x - 1, y - 1].GetComponent<gameCubeCatchController>().getIsMine() && !inNoZone) {
                     mines[i] = gameCubes[x - 1, y - 1];
                     mines[i].GetComponent<gameCubeCatchController>().setIsMine(true);

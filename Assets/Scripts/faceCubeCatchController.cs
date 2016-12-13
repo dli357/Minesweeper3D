@@ -20,11 +20,6 @@ public class faceCubeCatchController : MonoBehaviour {
 	void Start () {
         matRenderer = gameObject.GetComponent<Renderer>();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 
     public void setLostFace() {
         matRenderer.material = deadFace;

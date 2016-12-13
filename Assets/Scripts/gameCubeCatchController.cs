@@ -146,12 +146,10 @@ public class gameCubeCatchController : MonoBehaviour {
 
     public void lostGame() {
         gameController.setGameLost();
-        GameObject.Find("FaceCube(Clone)").GetComponent<faceCubeCatchController>().setLostFace();
     }
 
     public void wonGame() {
         gameController.setGameWon();
-        GameObject.Find("FaceCube(Clone)").GetComponent<faceCubeCatchController>().setWonFace();
     }
 
 
@@ -159,27 +157,29 @@ public class gameCubeCatchController : MonoBehaviour {
 
     //Mouse functions
     public void mouseLeftClick() {
-        if (!isFlagged 
-            && !isOpen 
-            && !gameController.getGameLost() 
-            && !gameController.getGameWon()) {
-            gameController.SendMessage("openGameCube", gameObject);
-            StartCoroutine(gameController.checkWinConditions());
-        } else if (numFlagsAround == number
-            && isOpen
-            && number != 0) {
-            for (int i = 0; i < 9; i++) {
-                int searchX = x + ((i % 3) - 1);
-                int searchY = y + ((i / 3) - 1);
-                if ((searchX != x || searchY != y)
-                    && searchX > 0 && searchY > 0
-                    && searchX <= gameController.getWidth()
-                    && searchY <= gameController.getHeight()) {
-                    gameController.SendMessage("openGameCube",
-                        gameController.getGameCubes()[searchX - 1, searchY - 1]);
+        if (gameController.getCubesComputing() == 0 && !gameController.getIsRestarting()) {
+            if (!isFlagged
+                && !isOpen
+                && !gameController.getGameLost()
+                && !gameController.getGameWon()) {
+                gameController.SendMessage("openGameCube", gameObject);
+                StartCoroutine(gameController.checkWinConditions());
+            } else if (numFlagsAround == number
+                && isOpen
+                && number != 0) {
+                for (int i = 0; i < 9; i++) {
+                    int searchX = x + ((i % 3) - 1);
+                    int searchY = y + ((i / 3) - 1);
+                    if ((searchX != x || searchY != y)
+                        && searchX > 0 && searchY > 0
+                        && searchX <= gameController.getWidth()
+                        && searchY <= gameController.getHeight()) {
+                        gameController.SendMessage("openGameCube",
+                            gameController.getGameCubes()[searchX - 1, searchY - 1]);
+                    }
                 }
+                StartCoroutine(gameController.checkWinConditions());
             }
-            StartCoroutine(gameController.checkWinConditions());
         }
     }
 
