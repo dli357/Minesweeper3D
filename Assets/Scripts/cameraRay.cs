@@ -23,6 +23,7 @@ public class cameraRay : MonoBehaviour {
             mousedIn = true;
             if (lastHit != null && !lastHit.Equals(hit.transform.gameObject) && lastHit.activeInHierarchy) {
                 lastHit.SendMessage("mouseOut");
+                clickedObject = null;
             }
             lastHit = hit.transform.gameObject;
             if (Input.GetMouseButton(0)) {
