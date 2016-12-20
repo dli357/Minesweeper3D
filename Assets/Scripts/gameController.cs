@@ -30,6 +30,7 @@ public class gameController : MonoBehaviour {
     private fourDigitHexDisplay timerDisplay;
     private fourDigitHexDisplay minesLeftDisplay;
     private GameObject gameBoardClone;
+    private GameObject player;
 
     private GameObject[] mines;
     private GameObject[,] gameCubes;
@@ -51,6 +52,7 @@ public class gameController : MonoBehaviour {
         gameCubes = new GameObject[width, height];
         notMineFlags = new ArrayList();
         calculateBoardParams();
+        player = GameObject.Find("Main Camera");
         mmc = GameObject.Find("MainMenuController").GetComponent<mainMenuScript>();
         generateBackgroundQuad();
         StartCoroutine(generateGameCubes());
@@ -236,7 +238,8 @@ public class gameController : MonoBehaviour {
     }
 
     public void resetGame() {
-        if (!isRestarting) {
+        if (!isRestarting && cubesComputing == 0) {
+            mmc.onLoadingCanvas();
             isRestarting = true;
             Destroy(gameBoardClone);
             altStart();
@@ -313,6 +316,8 @@ public class gameController : MonoBehaviour {
         } else {
             gameBoardClone.SetActive(false);
             pauseMenu.SetActive(true);
+            pauseMenu.transform.position = player.transform.position + (player.transform.forward * 300);
+            pauseMenu.transform.rotation = player.transform.rotation;
             isPaused = true;
         }
     }

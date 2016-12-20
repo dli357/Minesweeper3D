@@ -16,6 +16,7 @@ public class mainMenuScript : MonoBehaviour {
     private bool instructionsCanvasOn = false;
     private bool customDifficultyCanvasOn = false;
     private bool startedGame = false;
+    private bool isLoading = false;
     public Material backgroundLoadingMaterial;
     private Material defaultSkybox;
 
@@ -42,6 +43,10 @@ public class mainMenuScript : MonoBehaviour {
 
     public bool getStartedGame() {
         return startedGame;
+    }
+
+    public bool getIsLoading() {
+        return isLoading;
     }
 
     //Quit
@@ -103,12 +108,17 @@ public class mainMenuScript : MonoBehaviour {
     }
 
     public void onLoadingCanvas() {
+        isLoading = true;
+        GameObject player = GameObject.Find("Main Camera");
         loadingCanvas.SetActive(true);
+        loadingCanvas.transform.position = player.transform.position + (player.transform.forward * 300);
+        loadingCanvas.transform.rotation = player.transform.rotation;
         RenderSettings.skybox = backgroundLoadingMaterial;
         RenderSettings.reflectionIntensity = 0;
     }
 
     public void offLoadingCanvas() {
+        isLoading = false;
         loadingCanvas.SetActive(false);
         RenderSettings.skybox = defaultSkybox;
         RenderSettings.reflectionIntensity = 1;
