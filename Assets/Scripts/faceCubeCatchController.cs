@@ -44,7 +44,7 @@ public class faceCubeCatchController : MonoBehaviour {
         //No action on right click
     }
 
-    void mouseOff() {
+    void mouseOffLeft() {
         if (gameController.getGameLost()) {
             matRenderer.material = deadFace;
         } else if (gameController.getGameWon()) {
@@ -52,6 +52,9 @@ public class faceCubeCatchController : MonoBehaviour {
         } else {
             matRenderer.material = defaultFace;
         }
+    }
+    void mouseOffRight() {
+        //No action non right mouse down
     }
     void mouseOnLeft() {
         if (gameController.getGameLost()) {
