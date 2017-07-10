@@ -10,19 +10,22 @@ public class ButtonCatch : MonoBehaviour {
     }
 
     void mouseRightClick() {
-        mouseLeftClick();
+        //mouseLeftClick();
     }
 
-    void mouseOff() {
+    void mouseOffLeft() {
         var pointer = new PointerEventData(EventSystem.current);
         ExecuteEvents.Execute(gameObject, pointer, ExecuteEvents.pointerUpHandler);
+    }
+    void mouseOffRight() {
+        //mouseOffLeft();
     }
     void mouseOnLeft() {
         var pointer = new PointerEventData(EventSystem.current);
         ExecuteEvents.Execute(gameObject, pointer, ExecuteEvents.pointerDownHandler);
     }
     void mouseOnRight() {
-        mouseOnLeft();
+        //mouseOnLeft();
     }
     void mouseOut() {
         var pointer = new PointerEventData(EventSystem.current);

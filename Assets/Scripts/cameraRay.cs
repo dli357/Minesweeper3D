@@ -5,73 +5,80 @@ public class cameraRay : MonoBehaviour {
     Vector3 location;
     Vector3 fwd;
     GameObject lastHit;
-    GameObject clickedObject;
+    GameObject leftClickedObject;
+    GameObject rightClickedObject;
     bool mousedIn = false;
-    bool leftMouseDown = false;
-    bool rightMouseDown = false;
+    bool startedOnLeft = false;
+    bool startedOnRight = false;
+    bool mouseLeftHold = false;
+    bool mouseRightHold = false;
 
     void Start () {
         location = transform.position;
         fwd = transform.TransformDirection(Vector3.forward);
-	}
+        mousedIn = false;
+        startedOnLeft = false;
+        startedOnRight = false;
+        mouseLeftHold = false;
+        mouseRightHold = false;
+    }
 
 	void Update () {
         location = transform.position;
         fwd = transform.TransformDirection(Vector3.forward);
         RaycastHit hit;
+        //The block that controls mouse hovering
         if (Physics.Raycast(location, fwd, out hit)) {
+            if (!mousedIn) {
+                hit.transform.gameObject.SendMessage("mouseOver");
+            } else if (!GameObject.ReferenceEquals(hit.transform.gameObject, lastHit)) {
+                if (lastHit && lastHit.activeInHierarchy) {
+                    lastHit.SendMessage("mouseOut");
+                }
+                hit.transform.gameObject.SendMessage("mouseOver");
+            }
             mousedIn = true;
-            if (lastHit != null && !lastHit.Equals(hit.transform.gameObject) && lastHit.activeInHierarchy) {
-                lastHit.SendMessage("mouseOut");
-                clickedObject = null;
-            }
             lastHit = hit.transform.gameObject;
-            if (Input.GetMouseButton(0)) {
-                if (Input.GetMouseButtonDown(0)) {
-                    clickedObject = lastHit;
-                    leftMouseDown = true;
-                    rightMouseDown = false;
-                }
-                if (clickedObject != null && clickedObject.Equals(lastHit)) {
-                    hit.transform.gameObject.SendMessage("mouseOnLeft");
-                }
-            }
-            if (Input.GetMouseButton(1)) {
-                if (Input.GetMouseButtonDown(1)) {
-                    clickedObject = lastHit;
-                    rightMouseDown = true;
-                    leftMouseDown = false;
-                }
-                if (clickedObject != null && clickedObject.Equals(lastHit)) {
-                    hit.transform.gameObject.SendMessage("mouseOnRight");
-                }
-            }
-            if (clickedObject != null && clickedObject.Equals(lastHit) && !Input.GetMouseButton(0) && !Input.GetMouseButton(1)) {
-                clickedObject = null;
-                hit.transform.gameObject.SendMessage("mouseOver");
-                if (leftMouseDown) {
-                    hit.transform.gameObject.SendMessage("mouseLeftClick");
-                    leftMouseDown = false;
-                }
-                if (rightMouseDown) {
-                    hit.transform.gameObject.SendMessage("mouseRightClick");
-                    rightMouseDown = false;
-                }
-            } else if (!Input.GetMouseButton(0) && !Input.GetMouseButton(1)) {
-                hit.transform.gameObject.SendMessage("mouseOver");
-            }
         } else {
-            if (clickedObject != null && clickedObject.Equals(lastHit)) {
-                clickedObject = null;
-                lastHit.SendMessage("mouseOff");
-            } else {
-                if (mousedIn) {
-                    if (lastHit.activeInHierarchy) {
-                        lastHit.SendMessage("mouseOut");
-                    }
-                    mousedIn = false;
-                }
+            if (lastHit && lastHit.activeInHierarchy) {
+                lastHit.SendMessage("mouseOut");
             }
+            mousedIn = false;
         }
-	}
+        //The block that controls OnPointerDown, OnPointerUp, and onClicked
+        if (Input.GetMouseButton(0)) {
+            if (mousedIn && !mouseLeftHold) {
+                lastHit.SendMessage("mouseOnLeft");
+                leftClickedObject = lastHit.gameObject;
+                startedOnLeft = true;
+            }
+            mouseLeftHold = true;
+        } else {
+            if (startedOnLeft) {
+                leftClickedObject.SendMessage("mouseOffLeft");
+                if (mousedIn && GameObject.ReferenceEquals(leftClickedObject, lastHit)) {
+                    leftClickedObject.SendMessage("mouseLeftClick");
+                }
+                startedOnLeft = false;
+            }
+            mouseLeftHold = false;
+        }
+        if (Input.GetMouseButton(1)) {
+            if (mousedIn && !mouseRightHold) {
+                lastHit.SendMessage("mouseOnRight");
+                rightClickedObject = lastHit.gameObject;
+                startedOnRight = true;
+            }
+            mouseRightHold = true;
+        } else {
+            if (startedOnRight) {
+                rightClickedObject.SendMessage("mouseOffRight");
+                if (mousedIn && GameObject.ReferenceEquals(rightClickedObject, lastHit)) {
+                    rightClickedObject.SendMessage("mouseRightClick");
+                }
+                startedOnRight = false;
+            }
+            mouseRightHold = false;
+        }
+    }
 }

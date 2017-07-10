@@ -10,7 +10,10 @@ public class coverCubeCatchController : MonoBehaviour {
     void mouseRightClick() {
         //No action on right click
     }
-    void mouseOff() {
+    void mouseOffLeft() {
+        //No action on mouse off
+    }
+    void mouseOffRight() {
         //No action on mouse off
     }
     void mouseOnLeft() {

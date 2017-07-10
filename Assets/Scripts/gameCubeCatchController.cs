@@ -191,7 +191,11 @@ public class gameCubeCatchController : MonoBehaviour {
         }
     }
 
-    public void mouseOff() {
+    public void mouseOffLeft() {
+        
+    }
+
+    public void mouseOffRight() {
         if (!isOpen 
             && !gameController.getGameLost()
             && !gameController.getGameWon()) {
