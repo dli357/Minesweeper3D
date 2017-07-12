@@ -62,13 +62,11 @@ public class gameController : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        if (gameStarted) {
-            if (!gameWon && !gameLost && !isPaused) {
-                gameTime += Time.deltaTime;
-                timerDisplay.GetComponent<fourDigitHexDisplay>().setValue((int)gameTime);
-            }
+        if (gameStarted && !isRestarting && !gameWon && !gameLost && !isPaused) {
+            gameTime += Time.deltaTime;
+            timerDisplay.GetComponent<fourDigitHexDisplay>().setValue((int)gameTime);
         }
-        if (Input.GetKeyDown(KeyCode.Escape)) {
+        if (Input.GetKeyDown(KeyCode.Escape) && !isRestarting && cubesComputing == 0) {
             togglePause();
         }
     }
@@ -197,7 +195,9 @@ public class gameController : MonoBehaviour {
             y -= 40;
             yield return null;
         }
-        mmc.offLoadingCanvas();
+        if (mmc.getIsLoading()) {
+            mmc.offLoadingCanvas();
+        }
         isRestarting = false;
     }
 
@@ -239,12 +239,15 @@ public class gameController : MonoBehaviour {
         cubesComputing--;
     }
 
-    public void resetGame() {
+    public void crReset() {
+        StartCoroutine(resetGame());
+    }
+
+    IEnumerator resetGame() {
         if (!isRestarting && cubesComputing == 0) {
-            mmc.onLoadingCanvas();
-            isRestarting = true;
-            gameBoardClone.SetActive(false);
             Destroy(gameBoardClone);
+            isRestarting = true;
+            yield return new WaitForSeconds(0.01f);
             altStart();
         }
     }

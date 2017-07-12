@@ -37,7 +37,7 @@ public class faceCubeCatchController : MonoBehaviour {
     }
 
     void mouseLeftClick() {
-        gameController.resetGame();
+        gameController.crReset();
     }
 
     void mouseRightClick() {

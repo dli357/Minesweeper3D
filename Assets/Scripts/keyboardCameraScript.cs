@@ -4,16 +4,18 @@ using System.Collections;
 public class keyboardCameraScript : MonoBehaviour {
 
     private mainMenuScript mmc;
+    private gameController gc;
     private int speed = 2;
 
 	// Use this for initialization
 	void Start () {
         mmc = GameObject.Find("MainMenuController").GetComponent<mainMenuScript>();
+        gc = GameObject.Find("GameController").GetComponent<gameController>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        if (!mmc.getIsLoading()) {
+        if (!mmc.getIsLoading() && !gc.getIsPaused()) {
             if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
                 speed = 5;
             } else {
