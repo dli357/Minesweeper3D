@@ -61,7 +61,7 @@ public class gameController : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         if (gameStarted) {
-            if (!gameWon && !gameLost) {
+            if (!gameWon && !gameLost && !isPaused) {
                 gameTime += Time.deltaTime;
                 timerDisplay.GetComponent<fourDigitHexDisplay>().setValue((int)gameTime);
             }
