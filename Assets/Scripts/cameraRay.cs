@@ -55,7 +55,9 @@ public class cameraRay : MonoBehaviour {
             mouseLeftHold = true;
         } else {
             if (startedOnLeft) {
-                leftClickedObject.SendMessage("mouseOffLeft");
+                if (leftClickedObject.activeInHierarchy) {
+                    leftClickedObject.SendMessage("mouseOffLeft");
+                }
                 if (mousedIn && GameObject.ReferenceEquals(leftClickedObject, lastHit)) {
                     leftClickedObject.SendMessage("mouseLeftClick");
                 }
@@ -72,7 +74,9 @@ public class cameraRay : MonoBehaviour {
             mouseRightHold = true;
         } else {
             if (startedOnRight) {
-                rightClickedObject.SendMessage("mouseOffRight");
+                if (rightClickedObject.activeInHierarchy) {
+                    rightClickedObject.SendMessage("mouseOffRight");
+                }
                 if (mousedIn && GameObject.ReferenceEquals(rightClickedObject, lastHit)) {
                     rightClickedObject.SendMessage("mouseRightClick");
                 }
