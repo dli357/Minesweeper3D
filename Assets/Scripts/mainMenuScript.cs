@@ -24,7 +24,7 @@ public class mainMenuScript : MonoBehaviour {
         var objs = GameObject.FindObjectsOfType<GameObject>();
         foreach (GameObject g in objs) {
             if (g.name.Equals("MainMenuController") && g.GetComponent<mainMenuScript>().getStartedGame()) {
-                Destroy(g);
+                DestroyImmediate(g);
             }
         }
         mainMenuCanvas = GameObject.Find("MainMenuCanvas");

@@ -55,7 +55,9 @@ public class gameController : MonoBehaviour {
         player = GameObject.Find("Main Camera");
         mmc = GameObject.Find("MainMenuController").GetComponent<mainMenuScript>();
         generateBackgroundQuad();
+        gameBoardClone.SetActive(false);
         StartCoroutine(generateGameCubes());
+        gameBoardClone.SetActive(true);
     }
 
     // Update is called once per frame
@@ -241,6 +243,7 @@ public class gameController : MonoBehaviour {
         if (!isRestarting && cubesComputing == 0) {
             mmc.onLoadingCanvas();
             isRestarting = true;
+            gameBoardClone.SetActive(false);
             Destroy(gameBoardClone);
             altStart();
         }

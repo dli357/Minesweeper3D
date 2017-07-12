@@ -26,7 +26,6 @@ public class mouseCameraScript : MonoBehaviour {
         if (!mmc.getIsLoading()) {
             float mouseX = Input.GetAxis("Mouse X");
             float mouseY = -Input.GetAxis("Mouse Y");
-
             rotY += mouseX * mouseSensitivity * Time.deltaTime;
             rotX += mouseY * mouseSensitivity * Time.deltaTime;
 
