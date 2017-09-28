@@ -253,8 +253,14 @@ public class gameController : MonoBehaviour {
     }
 
     public void returnToMenu() {
+        StartCoroutine("returnToMenuAsync");
+    }
+
+    private IEnumerator returnToMenuAsync() {
         mmc.onLoadingCanvas();
-        SceneManager.LoadSceneAsync("Main Menu");
+        AsyncOperation async = SceneManager.LoadSceneAsync("Main Menu");
+        yield return async;
+        mmc.offLoadingCanvas();
     }
 
     public void setLevelParams(int h, int w, int nM) {
